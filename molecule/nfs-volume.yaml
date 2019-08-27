@@ -1,0 +1,32 @@
+# Anthony Rabiaza - https://github.com/anthonyrabiaza #
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-volume
+  labels:
+    env: test
+    team: dell-boomi
+spec:
+  capacity:
+    storage: 50Gi # This size is used to match a volume to a tenents claim
+  accessModes:
+    - ReadWriteMany # Access modes are defined below
+  persistentVolumeReclaimPolicy: Retain
+  nfs:
+    server: @@@@REPLACEME@@@@
+    path: @@@@REPLACEME@@@@
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: nfs-volume
+  labels:
+    env: test
+    team: dell-boomi
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  resources:
+    requests:
+      storage: 50Gi

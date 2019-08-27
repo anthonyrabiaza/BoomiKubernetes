@@ -1,0 +1,78 @@
+# Anthony Rabiaza - https://github.com/anthonyrabiaza #
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: molecule-deployment
+  labels:
+    app: molecule
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: molecule
+  template:
+    metadata:
+      labels:
+        app: molecule
+        env: test
+        team: dell-boomi
+    spec:
+      containers:
+      - name: molecule-container
+        image: boomi/molecule:release
+        resources:
+          limits:
+            cpu: 1
+          requests:
+            cpu: 1
+        volumeMounts:
+        - mountPath: /var/boomi
+          name: boomi-shared-folder
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9090
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/bash", "-ec", "echo `date`: Starting `hostname` with IP `hostname -i` with user  `id`>> /var/boomi/hosts.log;"]
+          preStop:
+            exec:
+              command: ["/bin/bash", "-ec", "echo `date`: Stopping `hostname` with IP `hostname -i` with user  `id`>> /var/boomi/hosts.log;"]
+        env:
+        - name: URL
+          value: https://platform.boomi.com
+        - name: BOOMI_USERNAME
+          value: @@@@REPLACEME@@@@
+        - name: BOOMI_PASSWORD
+          value: @@@@REPLACEME@@@@
+        - name: BOOMI_ACCOUNTID
+          value: @@@@REPLACEME@@@@
+        - name: BOOMI_ATOMNAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: BOOMI_CONTAINERNAME
+          value: centos_kubernetes
+        - name: ATOM_LOCALHOSTID
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: INSTALLATION_DIRECTORY
+          value: /var/boomi
+      volumes:
+      - name: boomi-shared-folder
+        persistentVolumeClaim:
+          claimName: nfs-volume
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: molecule-service
+spec:
+  selector:
+    app: molecule
+  ports:
+  - name: http
+    protocol: TCP
+    port: 9090
+    targetPort: 9090
