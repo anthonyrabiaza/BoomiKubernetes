@@ -2,7 +2,24 @@
 
 ![Setup](resources/k8s-boomi-molecule.png)
 
-# Deployment of nfs Persistent Volume
+## Prerequisites
+
+This document explains the steps for nfs Persistent volume. You might want to use another type of PV (Azure File, GlusterFS, Vsphere volume, Portworx volumes, ScaleIO volumes, etc) but make sure that:
+
+1. the volume supports file locking 
+
+2. the mount path on all the nodes will be the same
+
+3. you have the libraries or tools installed on the Workers.
+
+   For instance, with nfs, make sure that your workers (each of them) will have access to net-tools and nfs-utils:
+
+
+```
+yum install -y net-tools nfs-utils nfs-utils-lib
+```
+
+## Deployment of nfs Persistent Volume
 
 ![](resources/dashboard-welcome.png)
 
@@ -16,7 +33,7 @@ Validate that the Persistent Volume Claims is added
 
 ![](resources/dashboard-pvc.png)
 
-# Deployment of Boomi Molecule on Kubernetes
+## Deployment of Boomi Molecule on Kubernetes
 
 Make sure you are on "default" Namepace.
 
@@ -96,6 +113,8 @@ Check the cluster status
 
 # Scaling of Boomi Molecule on Kubernetes
 
+## Static Scaling
+
 Return to Kubernetes Dashboard and select "Deployments" option:
 
 ![](resources/dashboard-deployment-scale-welcome.png)
@@ -116,15 +135,23 @@ After 1 minute or two, go back AtomSphere and check the Cluster Status
 
 ![](resources/atomsphere_cluster3.png)
 
+## Auto-scaling based on CPU Load
+
+For auto-scaling based on CPU Load (for instance 25%), connect to your Kubernetes master and run the following command:
+
+```
+kubectl autoscale deployment atom-deployment --cpu-percent=25 --min=1 --max=3
+```
+
 # Deployment of Dummy API and test of Load Balancing
 
-Change the type of API Type to Advanced:
-
-![](resources/atomsphere_deployment.png)
+Change the type of API Type to Advanced.
 
 Deploy one of your API (REST or SOAP) on the environment:
 
-![](media/image25.png)
+![](resources/atomsphere_deployment.png)
+
+
 
 Then test your API with your Browser/SOAPUI or Postman using the following URI:
 
@@ -145,3 +172,4 @@ View the extended information for each call, and validate that the Node ID is ch
 -   Extended Execution Information for 2nd call: **Node ID kubeworker2**
 
 -   Extended Execution Information for 3rd call: **Node ID kubeworker1**
+
