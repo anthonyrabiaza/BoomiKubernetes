@@ -140,7 +140,7 @@ After 1 minute or two, go back AtomSphere and check the Cluster Status
 For auto-scaling based on CPU Load (for instance 25%), connect to your Kubernetes master and run the following command:
 
 ```
-kubectl autoscale deployment atom-deployment --cpu-percent=25 --min=1 --max=3
+kubectl autoscale deployment molecule-deployment --cpu-percent=25 --min=1 --max=3
 ```
 
 # Deployment of Dummy API and test of Load Balancing
